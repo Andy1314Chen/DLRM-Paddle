@@ -16,9 +16,12 @@ import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 import math
+import numpy as np
+
+MIN_FLOAT = np.finfo(np.float32).min / 100.0
 
 
-class DLRMLayer(nn.layer):
+class DLRMLayer(nn.Layer):
     def __init__(self,
                  dense_feature_dim,
                  bot_layer_sizes,
@@ -36,7 +39,8 @@ class DLRMLayer(nn.layer):
         self.num_field = num_field
 
         self.bot_mlp = MLPLayer(input_shape=dense_feature_dim,
-                                units_list=bot_layer_sizes)
+                                units_list=bot_layer_sizes,
+                                last_action="relu")
 
         self.top_mlp = MLPLayer(input_shape=int(num_field * (num_field + 1) / 2) + sparse_feature_dim,
                                 units_list=top_layer_sizes)
@@ -51,7 +55,6 @@ class DLRMLayer(nn.layer):
     def forward(self, sparse_inputs, dense_inputs):
         # (batch_size, sparse_feature_dim)
         x = self.bot_mlp(dense_inputs)
-        x = paddle.nn.ReLU(x)
 
         # interact dense and sparse feature
         batch_size, d = x.shape
@@ -62,25 +65,22 @@ class DLRMLayer(nn.layer):
             emb = paddle.reshape(emb, shape=[-1, self.sparse_feature_dim])
             sparse_embs.append(emb)
 
-        T = paddle.concat(x=sparse_embs + [dense_inputs], axis=1).reshape(batch_size, -1, d)
+        T = paddle.reshape(paddle.concat(x=sparse_embs + [x], axis=1), (batch_size, -1, d))
         Z = paddle.bmm(T, paddle.transpose(T, perm=[0, 2, 1]))
 
-        _, ni, nj = Z.shape
+        Zflat = paddle.triu(Z, 1) + paddle.tril(paddle.ones_like(Z) * MIN_FLOAT, 0)
+        Zflat = paddle.reshape(paddle.masked_select(Zflat,
+                                                    paddle.greater_than(Zflat, paddle.ones_like(Zflat) * MIN_FLOAT)),
+                               (batch_size, -1))
 
-        li = paddle.to_tensor([i for i in range(ni) for j in range(i)])
-        lj = paddle.to_tensor([j for i in range(nj) for j in range(i)])
-        Zflat = Z[:, li, lj]
+        R = paddle.concat([x] + [Zflat], axis=1)
 
-        R = paddle.concat(x=[x] + [Zflat], axis=1)
-
-        logit = self.top_mlp(R)
-        # y = paddle.nn.Sigmoid(logit)
-        return logit
-
+        y = self.top_mlp(R)
+        return y
 
 
 class MLPLayer(nn.Layer):
-    def __init__(self, input_shape, units_list=None, l2=0.01, **kwargs):
+    def __init__(self, input_shape, units_list=None, l2=0.01, last_action=None, **kwargs):
         super(MLPLayer, self).__init__(**kwargs)
 
         if units_list is None:
@@ -90,6 +90,7 @@ class MLPLayer(nn.Layer):
         self.units_list = units_list
         self.l2 = l2
         self.mlp = []
+        self.last_action = last_action
 
         for i, unit in enumerate(units_list[:-1]):
             if i != len(units_list) - 1:
@@ -114,9 +115,13 @@ class MLPLayer(nn.Layer):
                 self.mlp.append(dense)
                 self.add_sublayer('dense_%d' % i, dense)
 
+                if last_action is not None:
+                    relu = paddle.nn.ReLU()
+                    self.mlp.append(relu)
+                    self.add_sublayer('relu_%d' % i, relu)
+
     def forward(self, inputs):
         outputs = inputs
         for n_layer in self.mlp:
             outputs = n_layer(outputs)
         return outputs
-
