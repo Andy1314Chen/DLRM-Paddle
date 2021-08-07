@@ -30,6 +30,16 @@ python -u tools/trainer.py -m models/rank/dlrm/config.yaml
 
 #### 二、DLRM 算法原理
 
+![DLRM](https://tva1.sinaimg.cn/large/008i3skNly1gt8kwo40g9j30ei0cmjru.jpg)
+
+1. 模型结构
+
+推荐 rank 模型一般较为简单，如上图 DLRM 的网络结构看着和 DNN 就没啥区别。模型的特征输入，主要包括 dense 数值型和
+sparse 类别型两种特征。dense features 直接链接 MLP（如图中的蓝色三角形），sparse features 经由 embedding 层
+查找得到相应的 embedding 向量。
+
+
+
 待补充...
 
 #### 三、复现记录
