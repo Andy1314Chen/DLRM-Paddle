@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from __future__ import print_function
+import random
 import numpy as np
 
 from paddle.io import IterableDataset
@@ -22,6 +23,7 @@ from paddle.io import IterableDataset
 class RecDataset(IterableDataset):
     def __init__(self, file_list, config):
         super(RecDataset, self).__init__()
+        random.shuffle(file_list)
         self.file_list = file_list
         self.init()
 
@@ -45,7 +47,9 @@ class RecDataset(IterableDataset):
         self.data = []
         for file in self.file_list:
             with open(file, "r") as rf:
-                for l in rf:
+                lines = rf.readlines()
+                random.shuffle(lines)
+                for l in lines:
                     line = l.strip().split(" ")
                     output = [(i, []) for i in self.slots]
                     for i in line:
