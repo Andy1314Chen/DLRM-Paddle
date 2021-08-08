@@ -21,16 +21,16 @@ runner:
   train_reader_path: "criteo_reader" # importlib format
   use_gpu: True
   use_auc: True
-  train_batch_size: 128
-  epochs: 50
-  print_interval: 128
+  train_batch_size: 256
+  epochs: 1
+  print_interval: 256
   model_save_path: "output_model_dlrm"
-  infer_batch_size: 128
+  infer_batch_size: 10240
   infer_reader_path: "criteo_reader" # importlib format
   test_data_dir: "/home/aistudio/data/criteo/slot_test_data_full"
   infer_load_path: "output_model_dlrm"
   infer_start_epoch: 0
-  infer_end_epoch: 3
+  infer_end_epoch: 1
 
   # distribute_config
   sync_mode: "async"
@@ -42,8 +42,8 @@ runner:
 hyper_parameters:
   # optimizer config
   optimizer:
-    class: Adam
-    learning_rate: 0.001
+    class: SGD
+    learning_rate: 0.1
     strategy: async
   # user-defined <key, value> pairs
   sparse_inputs_slots: 27
