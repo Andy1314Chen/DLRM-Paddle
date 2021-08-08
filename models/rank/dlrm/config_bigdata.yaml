@@ -21,11 +21,11 @@ runner:
   train_reader_path: "criteo_reader" # importlib format
   use_gpu: True
   use_auc: True
-  train_batch_size: 256
-  epochs: 1
+  train_batch_size: 2048
+  epochs: 2
   print_interval: 256
   model_save_path: "output_model_dlrm"
-  infer_batch_size: 10240
+  infer_batch_size: 256
   infer_reader_path: "criteo_reader" # importlib format
   test_data_dir: "/home/aistudio/data/criteo/slot_test_data_full"
   infer_load_path: "output_model_dlrm"
