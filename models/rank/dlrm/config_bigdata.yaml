@@ -19,7 +19,7 @@
 runner:
   train_data_dir: "/home/aistudio/data/criteo/slot_train_data_full"
   train_reader_path: "criteo_reader" # importlib format
-  use_gpu: True
+  use_gpu: False
   use_auc: True
   train_batch_size: 2048
   epochs: 2
