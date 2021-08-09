@@ -1,31 +1,58 @@
 #### 一、基于 PaddleRec 框架的 DLRM 推荐算法复现
 
-##### 1. 快速执行
+##### 1. AI-Studio 快速复现步骤
 ```
-cd PaddleRec
-python -u tools/trainer.py -m models/rank/dlrm/config.yaml
+################# Step 1, git clone code ################
+# 当前处于 /home/aistudio 目录, 代码存放在 /home/work/rank/DLRM-Paddle 中
+
+import os
+if not os.path.isdir('work/rank/PaddleRec-RSCode'):
+    if not os.path.isdir('work/rank'):
+        !mkdir work/rank
+    !cd work/rank && https://github.com/Andy1314Chen/DLRM-Paddle.git
+
+################# Step 2, download data ################
+# 当前处于 /home/aistudio 目录，数据存放在 /home/data/criteo 中
+
+import os
+os.makedirs('data/criteo', exist_ok=True)
+
+# Download  data
+if not os.path.exists('data/criteo/slot_test_data_full.tar.gz') or not os.path.exists('data/criteo/slot_train_data_full.tar.gz'):
+    !cd data/criteo && wget https://paddlerec.bj.bcebos.com/datasets/criteo/slot_test_data_full.tar.gz
+    !cd data/criteo && tar xzvf slot_test_data_full.tar.gz
+    
+    !cd data/criteo && wget https://paddlerec.bj.bcebos.com/datasets/criteo/slot_train_data_full.tar.gz
+    !cd data/criteo && tar xzvf slot_train_data_full.tar.gz
+
+################## Step 3, train model ##################
+# 启动训练脚本 (需注意当前是否是 GPU 环境）
+!cd work/rank/DLRM-Paddle && sh run.sh config_bigdata
+
 ```
 
-![快速执行](https://tva1.sinaimg.cn/large/008i3skNly1gt89fsdiuvg312z0qggz3.gif)
-
-##### 2. Sample Data 结果
+##### 2. criteo slot_test_data_full 验证集结果
 ```
-# train step
-2021-08-07 16:25:16,833 - INFO - epoch: 0 done, auc: 0.687211,accuracy: 0.000000, epoch time: 408.50 s
-2021-08-07 16:25:19,996 - INFO - Already save model in output_model_dlrm/0
-
-2021-08-07 16:32:08,402 - INFO - epoch: 1 done, auc: 0.769624,accuracy: 0.000000, epoch time: 408.41 s
-2021-08-07 16:32:12,014 - INFO - Already save model in output_model_dlrm/1
-
-2021-08-07 15:51:03,326 - INFO - epoch: 2 done, auc: 0.838696,accuracy: 0.000000, epoch time: 410.22 s
-2021-08-07 15:51:05,438 - INFO - Already save model in output_model_dlrm/2
-
-# infer step
-2021-08-07 17:06:05,010 - INFO - epoch: 0 done, auc: 0.761627,accuracy: 0.000000, epoch time: 57.38 s
-2021-08-07 17:07:02,043 - INFO - epoch: 1 done, auc: 0.791379,accuracy: 0.000000, epoch time: 57.03 s
-2021-08-07 17:07:59,870 - INFO - epoch: 2 done, auc: 0.817173,accuracy: 0.000000, epoch time: 57.83 s
+2021-08-09 14:08:14,539 - INFO - read data
+2021-08-09 14:08:14,539 - INFO - reader path:criteo_reader
+2021-08-09 14:08:14,540 - INFO - load model epoch 0
+2021-08-09 14:08:14,540 - INFO - start load model from output_model_dlrm/0
+2021-08-09 14:08:15,721 - INFO - epoch: 0, batch_id: 0, auc: 0.856177,accuracy: 0.000000, avg_reader_cost: 0.00187 sec, avg_batch_cost: 0.00201 sec, avg_samples: 256.00000, ips: 55497.64 ins/s
+...
+2021-08-09 14:13:46,552 - INFO - epoch: 0, batch_id: 6656, auc: 0.804113,accuracy: 0.000000, avg_reader_cost: 0.01508 sec, avg_batch_cost: 0.05010 sec, avg_samples: 256.00000, ips: 5107.50 ins/s
+2021-08-09 14:13:58,920 - INFO - epoch: 0, batch_id: 6912, auc: 0.804086,accuracy: 0.000000, avg_reader_cost: 0.01553 sec, avg_batch_cost: 0.04829 sec, avg_samples: 256.00000, ips: 5298.94 ins/s
+2021-08-09 14:14:11,539 - INFO - epoch: 0, batch_id: 7168, auc: 0.804185,accuracy: 0.000000, avg_reader_cost: 0.01239 sec, avg_batch_cost: 0.04927 sec, avg_samples: 256.00000, ips: 5193.93 ins/s
+2021-08-09 14:14:12,513 - INFO - epoch: 0 done, auc: 0.804220,accuracy: 0.000000, epoch time: 357.97 s
 ```
-![训练过程](https://tva1.sinaimg.cn/large/008i3skNly1gt89kyvq3lg31360qc7wh.gif)
+
+==2021-08-09 14:14:12,513 - INFO - epoch: 0 done, auc: 0.804220==，达到要求的 AUC>0.79, 复现成功！
+
+##### 3. 快速验证
+复现 DLRM 保存了训练好的模型文件，利用以下命令可以快速验证测试集 AUC：
+```
+!cd /home/aistudio/work/rank/DLRM-Paddle && python -u tools/infer.py -m models/rank/dlrm/config_bigdata.yaml
+```
+
 
 
 #### 二、DLRM 算法原理
