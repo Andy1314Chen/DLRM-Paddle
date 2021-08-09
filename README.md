@@ -6,7 +6,7 @@
 # 当前处于 /home/aistudio 目录, 代码存放在 /home/work/rank/DLRM-Paddle 中
 
 import os
-if not os.path.isdir('work/rank/PaddleRec-RSCode'):
+if not os.path.isdir('work/rank/DLRM-Paddle'):
     if not os.path.isdir('work/rank'):
         !mkdir work/rank
     !cd work/rank && https://github.com/Andy1314Chen/DLRM-Paddle.git
@@ -45,7 +45,8 @@ if not os.path.exists('data/criteo/slot_test_data_full.tar.gz') or not os.path.e
 2021-08-09 14:14:12,513 - INFO - epoch: 0 done, auc: 0.804220,accuracy: 0.000000, epoch time: 357.97 s
 ```
 
-==2021-08-09 14:14:12,513 - INFO - epoch: 0 done, auc: 0.804220==，达到要求的 AUC>0.79, 复现成功！
+==2021-08-09 14:14:12,513 - INFO - epoch: 0 done, auc: 0.804220,accuracy: 0.000000, epoch time: 357.97 s==，
+达到要求的 AUC>0.79, 复现成功！
 
 ##### 3. 快速验证
 复现 DLRM 保存了训练好的模型文件，利用以下命令可以快速验证测试集 AUC：
