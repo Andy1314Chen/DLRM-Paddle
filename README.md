@@ -9,7 +9,7 @@ import os
 if not os.path.isdir('work/rank/DLRM-Paddle'):
     if not os.path.isdir('work/rank'):
         !mkdir work/rank
-    !cd work/rank && https://github.com/Andy1314Chen/DLRM-Paddle.git
+    !cd work/rank && git clone https://hub.fastgit.org/Andy1314Chen/DLRM-Paddle.git
 
 ################# Step 2, download data ################
 # 当前处于 /home/aistudio 目录，数据存放在 /home/data/criteo 中
@@ -48,9 +48,9 @@ if not os.path.exists('data/criteo/slot_test_data_full.tar.gz') or not os.path.e
 ==2021-08-09 14:14:12,513 - INFO - epoch: 0 done, auc: 0.804220,accuracy: 0.000000, epoch time: 357.97 s==，
 达到要求的 AUC>0.79, 复现成功！
 
-##### 3. 快速验证
-复现 DLRM 保存了训练好的模型文件，保存地址为百度云 链接: https://pan.baidu.com/s/1EXnl9KlzTRehuxlQ70lUCQ  密码: msr1
-解压后放在 tools 同级目录下，再利用以下命令可以快速验证测试集 AUC：
+##### 3. 利用训练好的模型文件快速验证
+- 复现 DLRM 保存了训练好的模型文件，链接: https://pan.baidu.com/s/1EXnl9KlzTRehuxlQ70lUCQ  密码: msr1
+- 解压后放在 tools 同级目录下，再利用以下命令可以快速验证测试集 AUC：
 ```
 !cd /home/aistudio/work/rank/DLRM-Paddle && python -u tools/infer.py -m models/rank/dlrm/config_bigdata.yaml
 ```
