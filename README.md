@@ -78,12 +78,16 @@ DLRM 模型中所有的 sparse features 的 embedding 向量长度均是相等�
 - 核心参数 {epochs: 2, batch_size: 2048, optimizer: SGD, learning_rate: 0.1}
 - slot_test_data_full 全量测试集上 AUC = 0.804146
 
+
 #### 四、遇到问题
 1. 训练结束进行验证集测试时，会遇到 "EOFError: marshal data too short" 报错，可能要清理一下 __pycache__ 文件
 2. GPU 资源太少了。。。
 
+#### 五、复现执行步骤
 
-#### 四、参考资料
+
+
+#### 六、参考资料
 1. [PaddleRec 文档](README_CN.md)
 2. [Deep Learning Recommendation Model for Personalization and Recommendation Systems](https://arxiv.org/pdf/1906.00091v1.pdf)
 3. [Criteo 数据集](https://github.com/PaddlePaddle/PaddleRec/blob/release/2.1.0/datasets/criteo/run.sh)
