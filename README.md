@@ -63,15 +63,13 @@ if not os.path.exists('data/criteo/slot_test_data_full.tar.gz') or not os.path.e
 
 1. 模型结构
 
-推荐 rank 模型一般较为简单，如上图 DLRM 的网络结构看着和 DNN 就没啥区别，主要由四个基础模块构成，`Embeddings`、
-`Matrix Factorization`、`Factorization Machine`和`Multilayer Perceptrons`。
+推荐 rank 模型一般较为简单，如上图 DLRM 的网络结构看着和 DNN 就没啥区别，主要由四个基础模块构成，`Embeddings`、 `Matrix Factorization`、`Factorization Machine`和`Multilayer Perceptrons`。
 
 DLRM 模型的特征输入，主要包括 dense 数值型和 sparse 类别型两种特征。dense features 直接连接 MLP（如图中的蓝色三角形），
 sparse features 经由 embedding 层查找得到相应的 embedding 向量。Interactions 层进行特征交叉（包含 dense features 和 sparse features 的交叉及
 sparse features之间的交叉等），与因子分解机 FM 有些类似。
 
-DLRM 模型中所有的 sparse features 的 embedding 向量长度均是相等的，且dense features 经由 MLP 也转化成相同的维度。这
-点是理解该模型代码的关键。
+DLRM 模型中所有的 sparse features 的 embedding 向量长度均是相等的，且dense features 经由 MLP 也转化成相同的维度。这点是理解该模型代码的关键。
 
 - dense features 经过 MLP (bottom-MLP) 处理为同样维度的向量
 - spare features 经由 lookup 获得统一维度的 embedding 向量（可选择每一特征对应的 embedding 是否经过 MLP 处理）
@@ -85,6 +83,7 @@ DLRM 模型中所有的 sparse features 的 embedding 向量长度均是相等�
 
 
 3. Experiments
+
 大佬发文章就是 NB，DLRM vs DCN without extensive tuning and no regularization is used. 简简单单的 SGD + lr=0.1
 就把 Accuracy 干上去了。。。
 
