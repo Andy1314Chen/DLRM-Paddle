@@ -1,6 +1,66 @@
-#### 一、基于 PaddleRec 框架的 DLRM 推荐算法复现
+## DLRM
 
-##### 1. AI-Studio 快速复现步骤
+### 一、简介
+
+本项目是基于 PaddleRec 框架对 2019 年 Facebook 提出的 DLRM CTR 排序算法进行复现。
+
+论文：[Deep Learning Recommendation Model for Personalization and Recommendation Systems](https://arxiv.org/pdf/1906.00091v1.pdf)
+
+
+![DLRM](https://tva1.sinaimg.cn/large/008i3skNly1gt8kwo40g9j30ei0cmjru.jpg)
+
+
+推荐 rank 模型一般较为简单，如上图 DLRM 的网络结构看着和 DNN 就没啥区别，主要由四个基础模块构成，`Embeddings`、 `Matrix Factorization`、`Factorization Machine`和`Multilayer Perceptrons`。
+
+DLRM 模型的特征输入，主要包括 dense 数值型和 sparse 类别型两种特征。dense features 直接连接 MLP（如图中的蓝色三角形），
+sparse features 经由 embedding 层查找得到相应的 embedding 向量。Interactions 层进行特征交叉（包含 dense features 和 sparse features 的交叉及
+sparse features之间的交叉等），与因子分解机 FM 有些类似。
+
+DLRM 模型中所有的 sparse features 的 embedding 向量长度均是相等的，且dense features 经由 MLP 也转化成相同的维度。这点是理解该模型代码的关键。
+
+- dense features 经过 MLP (bottom-MLP) 处理为同样维度的向量
+- spare features 经由 lookup 获得统一维度的 embedding 向量（可选择每一特征对应的 embedding 是否经过 MLP 处理）
+- dense features & sparse features 的向量两两之间进行 dot product 交叉
+- 交叉结果再和 dense 向量 concat 一起输入到顶层 MLP (top-MLP)  
+- 经过 sigmoid 函数激活得到点击概率
+
+
+### 二、复现精度
+
+原论文意在介绍 DLRM 的网络结构，对模型参数并未进行细致调节，与 baseline DCN 算法对比实验结果中如下所示：
+
+![实验结果](https://tva1.sinaimg.cn/large/008i3skNly1gta7vj34mkj30ty0c8abt.jpg)
+
+在 Kaggle Criteo 数据集上，不同梯度更新方法结果不同，复现精度 AUC > 0.79 & Accuracy > 0.79.
+
+### 三、数据集
+
+原论文采用 Kaggle Criteo 数据集，为常用的 CTR 预估任务基准数据集。单条样本包括 13 列 dense features、 26 列 sparse features及 label.
+
+[Kaggle Criteo 数据集](https://www.kaggle.com/c/criteo-display-ad-challenge)
+- train set: 4584, 0617 条
+- test set:   604, 2135 条 （no label)
+
+[PaddleRec Criteo 数据集](https://github.com/PaddlePaddle/PaddleRec/blob/release/2.1.0/datasets/criteo/run.sh)
+- train set: 4400, 0000 条
+- test set:   184, 0617 条
+
+本项目采用 PaddleRec 所提供的 Criteo 数据集进行复现。
+
+### 四、环境依赖
+- 硬件：CPU、GPU
+- 框架：
+  - PaddlePaddle >= 2.1.2
+  - Python >= 3.7
+
+### 五、快速开始
+
+该小节操作建议在百度 AI-Studio NoteBook 中进行执行。
+
+AIStudio 项目链接：[https://aistudio.baidu.com/aistudio/projectdetail/2263714](https://aistudio.baidu.com/aistudio/projectdetail/2263714), 可以 fork 一下。
+
+#### 1. AI-Studio 快速复现步骤
+
 ```
 ################# Step 1, git clone code ################
 # 当前处于 /home/aistudio 目录, 代码存放在 /home/work/rank/DLRM-Paddle 中
@@ -31,7 +91,7 @@ if not os.path.exists('data/criteo/slot_test_data_full.tar.gz') or not os.path.e
 
 ```
 
-##### 2. criteo slot_test_data_full 验证集结果
+#### 2. criteo slot_test_data_full 验证集结果
 ```
 ...
 2021-08-11 18:19:45,528 - INFO - epoch: 0, batch_id: 5888, auc: 0.805084,accuracy: 0.793505, avg_reader_cost: 0.02961 sec, avg_batch_cost: 0.05567 sec, avg_samples: 256.00000, ips: 4596.73 ins/s
@@ -43,80 +103,32 @@ if not os.path.exists('data/criteo/slot_test_data_full.tar.gz') or not os.path.e
 2021-08-11 18:21:01,991 - INFO - epoch: 0 done, auc: 0.805245,accuracy: 0.793599, epoch time: 424.70 s
 ```
 
-==2021-08-11 18:21:01,991 - INFO - epoch: 0 done, auc: 0.805245,accuracy: 0.793599, epoch time: 357.97 s==，
-达到要求的 AUC>0.79, 复现成功！
-
-##### 3. 利用训练好的模型文件快速验证
+#### 3. 使用预训练模型进行预测
 - 复现 DLRM 保存了训练好的模型文件，链接: https://pan.baidu.com/s/1EXnl9KlzTRehuxlQ70lUCQ  密码: msr1
 - 解压后放在 tools 同级目录下，再利用以下命令可以快速验证测试集 AUC：
 ```
 !cd /home/aistudio/work/rank/DLRM-Paddle && python -u tools/infer.py -m models/rank/dlrm/config_bigdata.yaml
 ```
 
+### 六、代码结构与详细说明
 
-
-#### 二、DLRM 算法原理
-
-![DLRM](https://tva1.sinaimg.cn/large/008i3skNly1gt8kwo40g9j30ei0cmjru.jpg)
-
-1. 模型结构
-
-推荐 rank 模型一般较为简单，如上图 DLRM 的网络结构看着和 DNN 就没啥区别，主要由四个基础模块构成，`Embeddings`、 `Matrix Factorization`、`Factorization Machine`和`Multilayer Perceptrons`。
-
-DLRM 模型的特征输入，主要包括 dense 数值型和 sparse 类别型两种特征。dense features 直接连接 MLP（如图中的蓝色三角形），
-sparse features 经由 embedding 层查找得到相应的 embedding 向量。Interactions 层进行特征交叉（包含 dense features 和 sparse features 的交叉及
-sparse features之间的交叉等），与因子分解机 FM 有些类似。
-
-DLRM 模型中所有的 sparse features 的 embedding 向量长度均是相等的，且dense features 经由 MLP 也转化成相同的维度。这点是理解该模型代码的关键。
-
-- dense features 经过 MLP (bottom-MLP) 处理为同样维度的向量
-- spare features 经由 lookup 获得统一维度的 embedding 向量（可选择每一特征对应的 embedding 是否经过 MLP 处理）
-- dense features & sparse features 的向量两两之间进行 dot product 交叉
-- 交叉结果再和 dense 向量 concat 一起输入到顶层 MLP (top-MLP)  
-- 经过 sigmoid 函数激活得到点击概率
-
-2. Embedding
-
-待补充...
-
-
-3. Experiments
-
-大佬发文章就是 NB，DLRM vs DCN without extensive tuning and no regularization is used. 简简单单的 SGD + lr=0.1
-就把 Accuracy 干上去了。。。
-
-![实验结果](https://tva1.sinaimg.cn/large/008i3skNly1gta7vj34mkj30ty0c8abt.jpg)
-
-
-#### 三、复现记录
-1. 2021-08-04 tensorflow2 版本 
-- pytorch 实现代码翻译为 tensorflow2 版本， 在 criteo 测试集上取得 accuracy >= 0.80 & auc >= 0.79
-
-2. 2021-08-06 基于 PaddleRec 框架版本
-- 参考 tensorflow2 实现代码，基于 PaddleRec 框架实现 DLRM，在 sample data 上成功运行
-
-3. 2021-08-07 paddle 版本跑全量 criteo 数据集 & ~~调参~~ 炼丹！
-- batch_size: 128
-- Ai-Studio CPU 跑的太慢了... 申请一下 GPU 资源
-
-4. 2021-08-08 Ai-Studio GPU 点卡用完了 & 周末无法申请 GPU 资源
-- CPU 上运行，增大 batch_size & 增大学习率，减少 epoch
-- 核心参数 {epochs: 2, batch_size: 2048, optimizer: SGD, learning_rate: 0.1}
-- slot_test_data_full 全量测试集上 AUC = 0.804146
-
-5. 2021-08-11 补充 Accuracy 指标
-- 使用了论文开源代码的默认参数 SGD + lr=0.1, 1 epoch 达到了 auc: 0.805245,accuracy: 0.793599
-- 调参数可以得到更高精度
-
-#### 四、遇到问题
-1. 训练结束进行验证集测试时，会遇到 "EOFError: marshal data too short" 报错，可能要清理一下 __pycache__ 文件
-2. GPU 资源太少了。。。
-
-
-
-#### 五、参考资料
-1. [PaddleRec 文档](README_CN.md)
-2. [Deep Learning Recommendation Model for Personalization and Recommendation Systems](https://arxiv.org/pdf/1906.00091v1.pdf)
-3. [Criteo 数据集](https://github.com/PaddlePaddle/PaddleRec/blob/release/2.1.0/datasets/criteo/run.sh)
-4. [DLRM Pytorch 实现](https://github.com/facebookresearch/dlrm)
+代码结构遵循 PaddleRec 框架结构
+```
+|--models
+  |--rank
+    |--dlrm                   # 本项目核心代码
+      |--data                 # 采样小数据集
+      |--config.yaml          # 采样小数据集模型配置
+      |--config_bigdata.yaml  # Kaggle Criteo 全量数据集模型配置
+      |--criteo_reader.py     # dataset加载类            
+      |--dygraph_model.py     # PaddleRec 动态图模型训练类
+      |--net.py               # dlrm 核心算法代码，包括 dlrm 组网等
+|--tools                      # PaddleRec 工具类
+|--LICENSE                    # 项目 LICENSE
+|--README.md                  # readme
+|--README-old.md              # 原始 readme
+|--README_CN.md               # PaddleRec 中文 readme
+|--README_EN.md               # PaddleRec 英文 readme
+|--run.sh                     # 项目执行脚本(需在 aistudio notebook 中运行)
+```
 
