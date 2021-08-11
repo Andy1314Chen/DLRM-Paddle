@@ -39,13 +39,16 @@ if not os.path.exists('data/criteo/slot_test_data_full.tar.gz') or not os.path.e
 2021-08-09 14:08:14,540 - INFO - start load model from output_model_dlrm/0
 2021-08-09 14:08:15,721 - INFO - epoch: 0, batch_id: 0, auc: 0.856177,accuracy: 0.000000, avg_reader_cost: 0.00187 sec, avg_batch_cost: 0.00201 sec, avg_samples: 256.00000, ips: 55497.64 ins/s
 ...
-2021-08-09 14:13:46,552 - INFO - epoch: 0, batch_id: 6656, auc: 0.804113,accuracy: 0.000000, avg_reader_cost: 0.01508 sec, avg_batch_cost: 0.05010 sec, avg_samples: 256.00000, ips: 5107.50 ins/s
-2021-08-09 14:13:58,920 - INFO - epoch: 0, batch_id: 6912, auc: 0.804086,accuracy: 0.000000, avg_reader_cost: 0.01553 sec, avg_batch_cost: 0.04829 sec, avg_samples: 256.00000, ips: 5298.94 ins/s
-2021-08-09 14:14:11,539 - INFO - epoch: 0, batch_id: 7168, auc: 0.804185,accuracy: 0.000000, avg_reader_cost: 0.01239 sec, avg_batch_cost: 0.04927 sec, avg_samples: 256.00000, ips: 5193.93 ins/s
-2021-08-09 14:14:12,513 - INFO - epoch: 0 done, auc: 0.804220,accuracy: 0.000000, epoch time: 357.97 s
+2021-08-11 18:19:45,528 - INFO - epoch: 0, batch_id: 5888, auc: 0.805084,accuracy: 0.793505, avg_reader_cost: 0.02961 sec, avg_batch_cost: 0.05567 sec, avg_samples: 256.00000, ips: 4596.73 ins/s
+2021-08-11 18:19:59,916 - INFO - epoch: 0, batch_id: 6144, auc: 0.805157,accuracy: 0.793632, avg_reader_cost: 0.03085 sec, avg_batch_cost: 0.05618 sec, avg_samples: 256.00000, ips: 4554.94 ins/s
+2021-08-11 18:20:14,480 - INFO - epoch: 0, batch_id: 6400, auc: 0.805081,accuracy: 0.793623, avg_reader_cost: 0.02785 sec, avg_batch_cost: 0.05687 sec, avg_samples: 256.00000, ips: 4499.95 ins/s
+2021-08-11 18:20:30,772 - INFO - epoch: 0, batch_id: 6656, auc: 0.805203,accuracy: 0.793568, avg_reader_cost: 0.02980 sec, avg_batch_cost: 0.06361 sec, avg_samples: 256.00000, ips: 4023.01 ins/s
+2021-08-11 18:20:46,270 - INFO - epoch: 0, batch_id: 6912, auc: 0.805174,accuracy: 0.793536, avg_reader_cost: 0.02354 sec, avg_batch_cost: 0.06051 sec, avg_samples: 256.00000, ips: 4228.88 ins/s
+2021-08-11 18:21:00,821 - INFO - epoch: 0, batch_id: 7168, auc: 0.805253,accuracy: 0.793609, avg_reader_cost: 0.02986 sec, avg_batch_cost: 0.05682 sec, avg_samples: 256.00000, ips: 4504.05 ins/s
+2021-08-11 18:21:01,991 - INFO - epoch: 0 done, auc: 0.805245,accuracy: 0.793599, epoch time: 424.70 s
 ```
 
-==2021-08-09 14:14:12,513 - INFO - epoch: 0 done, auc: 0.804220,accuracy: 0.000000, epoch time: 357.97 s==，
+==2021-08-09 14:14:12,513 - INFO - epoch: 0 done, auc: 0.805245,accuracy: 0.793599, epoch time: 357.97 s==，
 达到要求的 AUC>0.79, 复现成功！
 
 ##### 3. 利用训练好的模型文件快速验证
@@ -106,6 +109,9 @@ DLRM 模型中所有的 sparse features 的 embedding 向量长度均是相等�
 - 核心参数 {epochs: 2, batch_size: 2048, optimizer: SGD, learning_rate: 0.1}
 - slot_test_data_full 全量测试集上 AUC = 0.804146
 
+5. 2021-08-11 补充 Accuracy 指标
+- 使用了论文开源代码的默认参数 SGD + lr=0.1, 1 epoch 达到了 auc: 0.805245,accuracy: 0.793599
+- 调参数可以得到更高精度
 
 #### 四、遇到问题
 1. 训练结束进行验证集测试时，会遇到 "EOFError: marshal data too short" 报错，可能要清理一下 __pycache__ 文件
