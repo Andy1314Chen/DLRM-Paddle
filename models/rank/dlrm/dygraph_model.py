@@ -90,6 +90,7 @@ class DygraphModel():
         # update metrics
         predict_2d = paddle.nn.functional.softmax(raw_pred_2d)
         metrics_list[0].update(preds=predict_2d.numpy(), labels=label.numpy())
+        metrics_list[1].update(metrics_list[1].compute(pred=predict_2d, label=label).numpy())
 
         # print_dict format :{'loss': loss}
         print_dict = None
@@ -103,4 +104,5 @@ class DygraphModel():
         # update metrics
         predict_2d = paddle.nn.functional.softmax(raw_pred_2d)
         metrics_list[0].update(preds=predict_2d.numpy(), labels=label.numpy())
+        metrics_list[1].update(metrics_list[1].compute(pred=predict_2d, label=label).numpy())
         return metrics_list, None
