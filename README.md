@@ -33,11 +33,6 @@ if not os.path.exists('data/criteo/slot_test_data_full.tar.gz') or not os.path.e
 
 ##### 2. criteo slot_test_data_full 验证集结果
 ```
-2021-08-09 14:08:14,539 - INFO - read data
-2021-08-09 14:08:14,539 - INFO - reader path:criteo_reader
-2021-08-09 14:08:14,540 - INFO - load model epoch 0
-2021-08-09 14:08:14,540 - INFO - start load model from output_model_dlrm/0
-2021-08-09 14:08:15,721 - INFO - epoch: 0, batch_id: 0, auc: 0.856177,accuracy: 0.000000, avg_reader_cost: 0.00187 sec, avg_batch_cost: 0.00201 sec, avg_samples: 256.00000, ips: 55497.64 ins/s
 ...
 2021-08-11 18:19:45,528 - INFO - epoch: 0, batch_id: 5888, auc: 0.805084,accuracy: 0.793505, avg_reader_cost: 0.02961 sec, avg_batch_cost: 0.05567 sec, avg_samples: 256.00000, ips: 4596.73 ins/s
 2021-08-11 18:19:59,916 - INFO - epoch: 0, batch_id: 6144, auc: 0.805157,accuracy: 0.793632, avg_reader_cost: 0.03085 sec, avg_batch_cost: 0.05618 sec, avg_samples: 256.00000, ips: 4554.94 ins/s
@@ -48,7 +43,7 @@ if not os.path.exists('data/criteo/slot_test_data_full.tar.gz') or not os.path.e
 2021-08-11 18:21:01,991 - INFO - epoch: 0 done, auc: 0.805245,accuracy: 0.793599, epoch time: 424.70 s
 ```
 
-==2021-08-09 14:14:12,513 - INFO - epoch: 0 done, auc: 0.805245,accuracy: 0.793599, epoch time: 357.97 s==，
+==2021-08-11 18:21:01,991 - INFO - epoch: 0 done, auc: 0.805245,accuracy: 0.793599, epoch time: 357.97 s==，
 达到要求的 AUC>0.79, 复现成功！
 
 ##### 3. 利用训练好的模型文件快速验证
